@@ -3,52 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suomi Master Ecosystem v5.5</title>
+    <title>Suomi Master v5.5 - GPS & Clear Zones</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --panel-bg: rgba(30, 41, 59, 0.9);
-            --accent-blue: #38bdf8;
-            --accent-green: #4ade80;
-            --accent-yellow: #facc15;
-            --text-main: #f8fafc;
-            --border-color: rgba(255, 255, 255, 0.1);
+            --bg-main: #f8fafc;
+            --panel-bg: rgba(255, 255, 255, 0.95);
+            --accent-blue: #2563eb;
+            --text-main: #0f172a;
+            --border-color: #e2e8f0;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 400px; background: var(--panel-bg); backdrop-filter: blur(12px); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 1000; }
-        .header { padding: 18px; border-bottom: 1px solid var(--border-color); }
-        .header h1 { font-size: 1.3rem; font-weight: 700; color: var(--accent-blue); }
-        .header p { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
         
-        .nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px; background: rgba(15, 23, 42, 0.8); }
-        .tab-btn { background: transparent; border: none; color: #94a3b8; padding: 8px 2px; font-size: 0.7rem; font-weight: 600; cursor: pointer; border-radius: 6px; text-align: center; }
-        .tab-btn.active, .tab-btn:hover { background: var(--accent-blue); color: #0f172a; }
+        #sidebar { width: 380px; background: var(--panel-bg); backdrop-filter: blur(10px); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 1000; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
+        .header { padding: 16px; border-bottom: 1px solid var(--border-color); background: #fff; }
+        .header h1 { font-size: 1.2rem; font-weight: 700; color: var(--accent-blue); }
+        .header p { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+        
+        .nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px; background: #f1f5f9; }
+        .tab-btn { background: transparent; border: none; color: #64748b; padding: 8px 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; border-radius: 6px; }
+        .tab-btn.active, .tab-btn:hover { background: #fff; color: var(--accent-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
         .content-area { flex: 1; overflow-y: auto; padding: 12px; }
-        .card { background: rgba(51, 65, 85, 0.5); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-        .card h3 { font-size: 0.95rem; color: #fff; margin-bottom: 4px; }
-        .card p { font-size: 0.8rem; color: #cbd5e1; line-height: 1.3; }
-        .tag { display: inline-block; padding: 2px 6px; font-size: 0.65rem; border-radius: 4px; margin-top: 6px; font-weight: 600; }
-        .tag-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-        .tag-success { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
-        .tag-warning { background: rgba(250, 204, 21, 0.2); color: #facc15; }
-
+        .card { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .card h3 { font-size: 0.9rem; color: #1e293b; margin-bottom: 4px; }
+        .card p { font-size: 0.78rem; color: #475569; line-height: 1.3; }
+        
+        .gps-btn { width: 100%; padding: 8px; background: var(--accent-blue); color: #fff; border: none; border-radius: 6px; font-weight: 600; font-size: 0.75rem; cursor: pointer; margin-top: 8px; }
+        
         #map { flex: 1; height: 100%; }
     </style>
 </head>
 <body>
     <div id="sidebar">
         <div class="header">
-            <h1>🇫🇮 Suomi Master Ecosystem</h1>
-            <p>Автодор • Рыбалка • Грибы • Зарядки • Избушки</p>
+            <h1>🇫🇮 Suomi Master Geo</h1>
+            <p>GPS Интерактивная карта и зоны</p>
+            <button class="gps-btn" onclick="locateUser()">📡 Моё местоположение (GPS)</button>
         </div>
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchSection('avtodor')">🚗 Авто</button>
-            <button class="tab-btn" onclick="switchSection('harvest')">🍄 Грибы/Ягоды</button>
-            <button class="tab-btn" onclick="switchSection('ev')">⚡ EV Зарядки</button>
+            <button class="tab-btn active" onclick="switchSection('avtodor')">🚗 Автодор</button>
+            <button class="tab-btn" onclick="switchSection('harvest')">🍄 Грибы</button>
+            <button class="tab-btn" onclick="switchSection('ev')">⚡ Зарядки</button>
             <button class="tab-btn" onclick="switchSection('shelters')">🛖 Избушки</button>
         </div>
         <div class="content-area" id="list-container"></div>
@@ -57,57 +55,101 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const map = L.map('map').setView([63.8333, 23.1333], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-        let currentMarkers = [];
-        function clearMarkers() { currentMarkers.forEach(m => map.removeLayer(m)); currentMarkers = []; }
+        // Инициализация легко читаемой карты Google-style (CartoDB Positron)
+        const map = L.map('map').setView([63.8333, 23.1333], 7);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap, © CARTO'
+        }).addTo(map);
+
+        let currentLayers = [];
+        let userLocationMarker = null;
+
+        function clearMapLayers() {
+            currentLayers.forEach(l => map.removeLayer(l));
+            currentLayers = [];
+        }
+
+        // Включение GPS геопозиции
+        function locateUser() {
+            map.locate({setView: true, maxZoom: 12, enableHighAccuracy: true});
+        }
+
+        map.on('locationfound', function(e) {
+            if (userLocationMarker) map.removeLayer(userLocationMarker);
+            userLocationMarker = L.circle(e.latlng, {
+                color: '#2563eb',
+                fillColor: '#3b82f6',
+                fillOpacity: 0.4,
+                radius: e.accuracy / 2
+            }).addTo(map).bindPopup("<b>Вы здесь</b> (Точность GPS: " + Math.round(e.accuracy) + "м)").openPopup();
+        });
+
+        map.on('locationerror', function() {
+            alert("Не удалось определить GPS местоположение. Проверьте разрешения в браузере.");
+        });
 
         async function switchSection(section) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             if (event) event.target.classList.add('active');
-            clearMarkers();
+            clearMapLayers();
 
             const container = document.getElementById('list-container');
-            container.innerHTML = '<p style="color:#94a3b8">Загрузка данных...</p>';
+            container.innerHTML = '<p style="color:#64748b">Загрузка данных...</p>';
 
             if (section === 'avtodor') {
                 const res = await fetch('/api/map/wildlife');
                 const data = await res.json();
                 container.innerHTML = '';
                 data.wildlife_markers.forEach(item => {
-                    const marker = L.marker([item.lat, item.lng]).addTo(map).bindPopup(`<b>${item.title_ru}</b><br>${item.note}`);
-                    currentMarkers.push(marker);
-                    container.innerHTML += `<div class="card"><h3>🫎 ${item.title_ru}</h3><p>${item.note}</p><span class="tag tag-danger">Риск: ${item.risk_level}</span></div>`;
+                    // Выделенная красная зона риска на карте
+                    const circle = L.circle([item.lat, item.lng], {
+                        color: '#ef4444',
+                        fillColor: '#f87171',
+                        fillOpacity: 0.35,
+                        radius: item.risk_level === 'HIGH' ? 8000 : 4000
+                    }).addTo(map).bindPopup(`<b>🫎 ${item.title_ru}</b><br>${item.note}`);
+                    
+                    currentLayers.push(circle);
+                    container.innerHTML += `<div class="card"><h3>🫎 ${item.title_ru}</h3><p>${item.note}</p></div>`;
                 });
             } else if (section === 'harvest') {
                 const res = await fetch('/api/map/harvest');
                 const data = await res.json();
                 container.innerHTML = '';
                 data.harvest_spots.forEach(item => {
-                    const marker = L.marker([item.lat, item.lng]).addTo(map).bindPopup(`<b>${item.name_ru}</b><br>${item.note}`);
-                    currentMarkers.push(marker);
-                    container.innerHTML += `<div class="card"><h3>🍄 ${item.name_ru}</h3><p>${item.note}</p><span class="tag tag-warning">Сезон: ${item.season}</span></div>`;
+                    // Выделенная зелено-желтая зона сбора
+                    const circle = L.circle([item.lat, item.lng], {
+                        color: '#16a34a',
+                        fillColor: '#4ade80',
+                        fillOpacity: 0.3,
+                        radius: 3000
+                    }).addTo(map).bindPopup(`<b>🍄 ${item.name_ru}</b><br>${item.note}`);
+                    
+                    currentLayers.push(circle);
+                    container.innerHTML += `<div class="card"><h3>🍄 ${item.name_ru}</h3><p>${item.note}</p></div>`;
                 });
             } else if (section === 'ev') {
                 const res = await fetch('/api/map/ev');
                 const data = await res.json();
                 container.innerHTML = '';
                 data.chargers.forEach(item => {
-                    const marker = L.marker([item.lat, item.lng]).addTo(map).bindPopup(`<b>${item.name}</b><br>${item.note}`);
-                    currentMarkers.push(marker);
-                    container.innerHTML += `<div class="card"><h3>⚡ ${item.name}</h3><p>${item.note}</p><span class="tag tag-success">Мощность: ${item.power_kw} kW</span></div>`;
+                    const marker = L.marker([item.lat, item.lng]).addTo(map).bindPopup(`<b>⚡ ${item.name}</b><br>${item.note}`);
+                    currentLayers.push(marker);
+                    container.innerHTML += `<div class="card"><h3>⚡ ${item.name}</h3><p>${item.note}</p></div>`;
                 });
             } else if (section === 'shelters') {
                 const res = await fetch('/api/map/free-shelters');
                 const data = await res.json();
                 container.innerHTML = '';
                 data.shelters.forEach(item => {
-                    const marker = L.marker([item.lat, item.lng]).addTo(map).bindPopup(`<b>${item.name_ru}</b><br>${item.note}`);
-                    currentMarkers.push(marker);
-                    container.innerHTML += `<div class="card"><h3>🛖 ${item.name_ru}</h3><p>${item.note}</p><span class="tag tag-success">Дрова: ${item.firewood ? 'Да' : 'Нет'}</span></div>`;
+                    const marker = L.marker([item.lat, item.lng]).addTo(map).bindPopup(`<b>🛖 ${item.name_ru}</b><br>${item.note}`);
+                    currentLayers.push(marker);
+                    container.innerHTML += `<div class="card"><h3>🛖 ${item.name_ru}</h3><p>${item.note}</p></div>`;
                 });
             }
         }
+
         switchSection('avtodor');
     </script>
 </body>
