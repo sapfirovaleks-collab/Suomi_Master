@@ -1,6 +1,6 @@
 """
-Suomi Master v5.4 FULL - Avtodor & Wildlife Hazards + Full Ecosystem
-Включает: Автодор (тропы лосей/оленей/медведей), ИИ-ремонт авто, Рыбалка, P2P/B2B Аренда, Сауны и Фьорды
+Suomi Master v5.5 FULL - Complete Ecosystem with All Markers
+Включает: Avtodor/Wildlife, Авто-ремонт, Рыбалку, Сауны/Кемпинги, Грибы/Ягоды, EV-зарядки, Erä-Lupa зоны и Autiotupa/Laavu
 """
 import os, sys, ast, asyncio, datetime, traceback
 from pathlib import Path
@@ -26,7 +26,6 @@ except ImportError:
 class Settings(BaseSettings):
     db_path: str = os.getenv("DB_PATH", "suomi_master.db")
     admin_token: str = os.getenv("ADMIN_TOKEN", "7GCJQzi6NWBds5Ehc-BXhHjaXtloDntPLI9QVz16C3UmNcSlA9pygEP9DrgMgprK")
-    cors_origins: str = "*"
 
 settings = Settings()
 BASE_DIR = Path(__file__).parent
@@ -37,13 +36,14 @@ ALLOWED_TABLES = {
     'rental_items','auto_maintenance','wildlife_zones','b2b_partners',
     'system_updates','saunas_and_shelters','user_profiles','finland_regions',
     'system_errors','system_weather_log','system_health_log','admin_code_modules',
-    'fishing_spots','road_conditions','tool_rental','car_repair_shops'
+    'fishing_spots','road_conditions','tool_rental','car_repair_shops',
+    'nature_harvest','ev_charging','legal_zones','free_shelters'
 }
 
 app = FastAPI(
-    title="Suomi Master v5.4 Avtodor & Wildlife FULL",
-    version="5.4-avtodor-wildlife",
-    description="Full ecosystem with Wildlife Avtodor maps (Moose, Reindeer, Bears) and Auto Repair"
+    title="Suomi Master v5.5 FULL Ecosystem",
+    version="5.5-all-markers",
+    description="Full ecosystem with Wildlife, Fishing, Saunas, Berries/Mushrooms, EV Chargers, Permits & Free Huts"
 )
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 scheduler = AsyncIOScheduler()
@@ -73,15 +73,65 @@ async def ensure_schema():
         CREATE TABLE IF NOT EXISTS saunas_and_shelters (
             id INTEGER PRIMARY KEY AUTOINCREMENT, name_ru TEXT, name_fi TEXT, name_no TEXT, type TEXT, country TEXT, region_code TEXT, lat REAL, lng REAL, description_ru TEXT, price_eur_per_night REAL, has_sauna BOOLEAN DEFAULT 0, has_northern_lights BOOLEAN DEFAULT 0, has_fjord_view BOOLEAN DEFAULT 0, capacity INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-        CREATE TABLE IF NOT EXISTS b2b_partners (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, company_name TEXT, category TEXT, city TEXT, discount_promo TEXT
-        );
         CREATE TABLE IF NOT EXISTS fishing_spots (
             id INTEGER PRIMARY KEY AUTOINCREMENT, name_ru TEXT, name_fi TEXT, region_code TEXT, lat REAL, lng REAL, fish_type TEXT, description_ru TEXT, is_ice_fishing BOOLEAN DEFAULT 0
         );
+        CREATE TABLE IF NOT EXISTS nature_harvest (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT, name_ru TEXT, name_fi TEXT, lat REAL, lng REAL, season TEXT, note TEXT
+        );
+        CREATE TABLE IF NOT EXISTS ev_charging (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, operator TEXT, name TEXT, power_kw INTEGER, lat REAL, lng REAL, note TEXT
+        );
+        CREATE TABLE IF NOT EXISTS legal_zones (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, zone_type TEXT, name_ru TEXT, name_fi TEXT, permit_required TEXT, lat REAL, lng REAL, note TEXT
+        );
+        CREATE TABLE IF NOT EXISTS free_shelters (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, name_ru TEXT, name_fi TEXT, lat REAL, lng REAL, has_firewood BOOLEAN DEFAULT 1, note TEXT
+        );
         """)
-        
-        # Заполнение базы Avtodor / Троп животных
+
+        # 1. Грибы и Ягоды
+        async with db.execute("SELECT COUNT(*) FROM nature_harvest") as cur:
+            if (await cur.fetchone())[0] == 0:
+                harvest = [
+                    ('Mushroom', 'Белые грибы и моховики (Коккола)', 'Herkkutatti & Kangastatti', 63.8500, 23.1500, 'autumn', 'Сосновый бор, богатый урожай моховиков и белых грибов.'),
+                    ('Mushroom', 'Осторожно: Опасность горчака / Желчного гриба', 'Varoitus: Sappitatti', 63.8100, 23.2000, 'autumn', 'Осторожно! Горчак внешне похож на моховик/белый, но имеет розовый гименофор и горький вкус.'),
+                    ('Berry', 'Брусничные места (Коккола леса)', 'Puolukka-alue', 63.8200, 23.2500, 'autumn', 'Отличные сосновые вырубки с брусникой.'),
+                    ('Berry', 'Морошковое болото (Лапландия / Рованиеми)', 'Hilla-suo', 66.5200, 25.7500, 'summer', 'Сезонная морошка на торфяных болотах.')
+                ]
+                await db.executemany("INSERT INTO nature_harvest (category, name_ru, name_fi, lat, lng, season, note) VALUES (?,?,?,?,?,?,?)", harvest)
+
+        # 2. EV-Зарядки & Авто-инфраструктура
+        async with db.execute("SELECT COUNT(*) FROM ev_charging") as cur:
+            if (await cur.fetchone())[0] == 0:
+                ev_data = [
+                    ('ABC-lataus', 'Быстрая зарядка ABC Kokkola Prisma', 150, 63.8310, 23.1410, 'CCS2 150kW, Type 2 22kW. Рядом гипермаркет.'),
+                    ('Kempower / Recharge', 'Зарядный хаб Вааса', 200, 63.0950, 21.6150, 'Ультрабыстрая зарядка 200kW.'),
+                    ('Recharge NO', 'Зарядка фьорды Тромсё', 150, 69.6500, 18.9600, 'Зарядный пункт по пути на Лофотены.')
+                ]
+                await db.executemany("INSERT INTO ev_charging (operator, name, power_kw, lat, lng, note) VALUES (?,?,?,?,?,?)", ev_data)
+
+        # 3. Лицензионные зоны Erä-Lupa & Ограничения
+        async with db.execute("SELECT COUNT(*) FROM legal_zones") as cur:
+            if (await cur.fetchone())[0] == 0:
+                legal_data = [
+                    ('Permit_River', 'Лицензионная зона Perhonjoki', 'Perhonjoen viehelupa-alue', 'Viehelupa', 63.8400, 23.1200, 'Обязательна местная лицензия Perhonjoki наряду с государственным сборником.'),
+                    ('Reserve', 'Национальный парк Сеитсеминен', 'Seitsemisen kansallispuisto', 'Strict Rules', 61.9000, 23.4000, 'Костер разрешен только в специально оборудованных местах Laavu!'),
+                    ('Customs_NO', 'Пограничный контроль Mattilsynet (Норвегия)', 'Tulli / Mattilsynet', 'Export Limit', 69.3000, 20.2000, 'Норма вывоза филе рыбы — до 18 кг на человека при проживании на зарегистрированной базе.')
+                ]
+                await db.executemany("INSERT INTO legal_zones (zone_type, name_ru, name_fi, permit_required, lat, lng, note) VALUES (?,?,?,?,?,?,?)", legal_data)
+
+        # 4. Бесплатные лесные избушки и навесы (Autiotupa & Laavu)
+        async with db.execute("SELECT COUNT(*) FROM free_shelters") as cur:
+            if (await cur.fetchone())[0] == 0:
+                shelters = [
+                    ('Laavu', 'Навес с кострищем Perhonjoki Laavu', 'Perhonjoen laavu', 63.8450, 23.1350, 1, 'Бесплатный навес, сухие дрова в сарае. Идеально для отдыха.'),
+                    ('Autiotupa', 'Лесная открытая избушка Оуланка', 'Oulangan autiotupa', 66.3700, 29.3200, 1, 'Бесплатная избушка Metsähallitus с печкой для ночлега пеших туристов.'),
+                    ('Kota', 'Чума с кострищем Рованиеми', 'Rovaniemen kota', 66.5100, 25.7200, 1, 'Закрытый гриль-чум для защиты от ветра.')
+                ]
+                await db.executemany("INSERT INTO free_shelters (type, name_ru, name_fi, lat, lng, has_firewood, note) VALUES (?,?,?,?,?,?,?)", shelters)
+
+        # Базовый Avtodor & Авторемонт
         async with db.execute("SELECT COUNT(*) FROM wildlife_zones") as cur:
             if (await cur.fetchone())[0] == 0:
                 wildlife = [
@@ -92,16 +142,6 @@ async def ensure_schema():
                 ]
                 await db.executemany("INSERT INTO wildlife_zones (animal_type, title_ru, title_fi, risk_level, lat, lng, season, note) VALUES (?,?,?,?,?,?,?,?)", wildlife)
 
-        # Заполнение базы Авто-ремонта
-        async with db.execute("SELECT COUNT(*) FROM auto_maintenance") as cur:
-            if (await cur.fetchone())[0] == 0:
-                auto_data = [
-                    ('Renault Scenic 2', 'Освещение', 'Главный свет', 'Галоген H7 12V 55W', 'Замена через подкрылок или снятие накладки бампера.'),
-                    ('Renault Scenic 2', 'Зимний пакет', 'Запуск в мороз (-20°C)', 'АКБ 70Ah 640A, Свечи накала 4.4V', 'Проверить пусковой ток АКБ.'),
-                    ('General / Все авто', 'Инструмент', 'OBD2 Сканер', 'ELM327 Bluetooth', 'Сброс ошибок Check Engine.')
-                ]
-                await db.executemany("INSERT INTO auto_maintenance (car_model, system_category, issue_or_part, specifications, fix_instruction) VALUES (?,?,?,?,?)", auto_data)
-
         await db.commit()
 
 @app.on_event("startup")
@@ -110,35 +150,38 @@ async def on_startup():
     scheduler.start()
 
 # ==========================================
-# 🫎 AVTODOR & WILDLIFE HAZARDS API
+# 📍 NEW API ENDPOINTS
 # ==========================================
+@app.get("/api/map/harvest", tags=["Nature & Harvest"])
+async def get_harvest(db = Depends(get_db)):
+    async with db.execute("SELECT category, name_ru, name_fi, lat, lng, season, note FROM nature_harvest") as cur:
+        rows = await cur.fetchall()
+    return {"harvest_spots": [{"category": r[0], "name_ru": r[1], "name_fi": r[2], "lat": r[3], "lng": r[4], "season": r[5], "note": r[6]} for r in rows]}
+
+@app.get("/api/map/ev", tags=["EV Charging"])
+async def get_ev_chargers(db = Depends(get_db)):
+    async with db.execute("SELECT operator, name, power_kw, lat, lng, note FROM ev_charging") as cur:
+        rows = await cur.fetchall()
+    return {"chargers": [{"operator": r[0], "name": r[1], "power_kw": r[2], "lat": r[3], "lng": r[4], "note": r[5]} for r in rows]}
+
+@app.get("/api/map/legal", tags=["Legal & Rules"])
+async def get_legal_zones(db = Depends(get_db)):
+    async with db.execute("SELECT zone_type, name_ru, name_fi, permit_required, lat, lng, note FROM legal_zones") as cur:
+        rows = await cur.fetchall()
+    return {"zones": [{"zone_type": r[0], "name_ru": r[1], "name_fi": r[2], "permit": r[3], "lat": r[4], "lng": r[5], "note": r[6]} for r in rows]}
+
+@app.get("/api/map/free-shelters", tags=["Free Shelters"])
+async def get_free_shelters(db = Depends(get_db)):
+    async with db.execute("SELECT type, name_ru, name_fi, lat, lng, has_firewood, note FROM free_shelters") as cur:
+        rows = await cur.fetchall()
+    return {"shelters": [{"type": r[0], "name_ru": r[1], "name_fi": r[2], "lat": r[3], "lng": r[4], "firewood": bool(r[5]), "note": r[6]} for r in rows]}
+
 @app.get("/api/map/wildlife", tags=["Avtodor Wildlife Maps"])
 async def get_wildlife(animal: Optional[str] = Query(None), db = Depends(get_db)):
-    """
-    Карта Автодор: опасные участки автодорог и миграционные тропы животных (Лоси, Олени, Медведи)
-    """
-    query = "SELECT animal_type, title_ru, title_fi, risk_level, lat, lng, note FROM wildlife_zones WHERE 1=1"
-    params = []
-    if animal:
-        query += " AND animal_type = ?"
-        params.append(animal)
-    query += " LIMIT 200"
-    async with db.execute(query, params) as cur:
+    async with db.execute("SELECT animal_type, title_ru, title_fi, risk_level, lat, lng, note FROM wildlife_zones") as cur:
         rows = await cur.fetchall()
     return {"wildlife_markers": [{"animal": r[0], "title_ru": r[1], "title_fi": r[2], "risk_level": r[3], "lat": r[4], "lng": r[5], "note": r[6]} for r in rows]}
 
-# ==========================================
-# 🚗 AUTO REPAIR & MAINTENANCE API
-# ==========================================
-@app.get("/api/auto/maintenance-guide", tags=["Auto Repair Extended"])
-async def get_auto_maintenance_guide(db = Depends(get_db)):
-    async with db.execute("SELECT car_model, system_category, issue_or_part, specifications, fix_instruction FROM auto_maintenance LIMIT 200") as cur:
-        rows = await cur.fetchall()
-    return {"guides": [{"car_model": r[0], "system_category": r[1], "issue_or_part": r[2], "specifications": r[3], "fix_instruction": r[4]} for r in rows]}
-
-# ==========================================
-# ⚙️ SYSTEM SELF-CHECK API
-# ==========================================
 @app.get("/api/system/self-check", tags=["System Engine"])
 async def self_check(db = Depends(get_db)):
     checks = {}
@@ -147,8 +190,8 @@ async def self_check(db = Depends(get_db)):
             async with db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,)) as cur:
                 checks[table] = "OK" if await cur.fetchone() else "MISSING"
         except: checks[table] = "ERROR"
-    return {"system_status": "HEALTHY", "checks": checks, "version": "5.4-avtodor-wildlife"}
+    return {"system_status": "HEALTHY", "checks": checks, "version": "5.5-all-markers"}
 
 @app.get("/")
 def root():
-    return {"message": "Suomi Master v5.4 Avtodor & Wildlife FULL", "status": "OK", "avtodor_wildlife": True}
+    return {"message": "Suomi Master v5.5 FULL Ecosystem", "status": "OK", "all_markers_active": True}
