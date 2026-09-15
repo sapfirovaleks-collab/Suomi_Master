@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suomi Master Ecosystem v5.4</title>
+    <!-- Leaflet CSS for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.85);
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-orange: #fb923c;
+            --text-main: #f8fafc;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 380px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Nav Tabs */
+        .nav-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 10px 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--accent-blue);
+            color: #0f172a;
+        }
+
+        /* Content List */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .card {
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+
+        .card h3 { font-size: 1rem; color: #fff; margin-bottom: 6px; }
+        .card p { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        .tag-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .tag-success { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+
+        /* Map Container */
+        #map {
+            flex: 1;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div class="header">
+            <h1>🇫🇮 Suomi Master Ecosystem</h1>
+            <p>Автодор • Рыбалка • Сауны • Аренда</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchSection('avtodor')">🚗 Авто</button>
+            <button class="tab-btn" onclick="switchSection('fishing')">🎣 Рыбалка</button>
+            <button class="tab-btn" onclick="switchSection('saunas')">🏕️ Отдых</button>
+            <button class="tab-btn" onclick="switchSection('rentals')">🛠️ Аренда</button>
+        </div>
+
+        <div class="content-area" id="list-container">
+            <!-- Динамические карточки подгружаются сюда -->
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Инициализация карты (центр на Финляндии)
+        const map = L.map('map').setView([63.8333, 23.1333], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let currentMarkers = [];
+
+        function clearMarkers() {
+            currentMarkers.forEach(m => map.removeLayer(m));
+            currentMarkers = [];
+        }
+
+        async function switchSection(section) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            clearMarkers();
+
+            const container = document.getElementById('list-container');
+            container.innerHTML = '<p style="color:#94a3b8">Загрузка данных...</p>';
+
+            if (section === 'avtodor') {
+                const res = await fetch('/api/map/wildlife');
+                const data = await res.json();
+                container.innerHTML = '';
+                data.wildlife_markers.forEach(item => {
+                    const marker = L.marker([item.lat, item.lng]).addTo(map)
+                        .bindPopup(`<b>${item.title_ru}</b><br>${item.note}`);
+                    currentMarkers.push(marker);
+
+                    container.innerHTML += `
+                        <div class="card">
+                            <h3>${item.animal === 'Moose' ? '🫎' : '🦌'} ${item.title_ru}</h3>
+                            <p>${item.note}</p>
+                            <span class="tag tag-danger">Риск: ${item.risk_level}</span>
+                        </div>
+                    `;
+                });
+            } else if (section === 'fishing') {
+                const res = await fetch('/api/map/fishing');
+                const data = await res.json();
+                container.innerHTML = '';
+                data.fishing_spots.forEach(item => {
+                    const marker = L.marker([item.lat, item.lng]).addTo(map)
+                        .bindPopup(`<b>${item.name_ru}</b><br>Рыба: ${item.fish}`);
+                    currentMarkers.push(marker);
+
+                    container.innerHTML += `
+                        <div class="card">
+                            <h3>🎣 ${item.name_ru}</h3>
+                            <p>${item.desc || 'Отличное место для ловли'}</p>
+                            <span class="tag tag-success">Рыба: ${item.fish}</span>
+                        </div>
+                    `;
+                });
+            } else if (section === 'saunas') {
+                const res = await fetch('/api/map/saunas');
+                const data = await res.json();
+                container.innerHTML = '';
+                data.saunas_and_shelters.forEach(item => {
+                    const marker = L.marker([item.lat, item.lng]).addTo(map)
+                        .bindPopup(`<b>${item.name_ru}</b><br>${item.desc}`);
+                    currentMarkers.push(marker);
+
+                    container.innerHTML += `
+                        <div class="card">
+                            <h3>🪵 ${item.name_ru}</h3>
+                            <p>${item.desc}</p>
+                            <span class="tag tag-success">Цена: ${item.price}€ / ночь</span>
+                        </div>
+                    `;
+                });
+            } else if (section === 'rentals') {
+                container.innerHTML = `
+                    <div class="card">
+                        <h3>🛠️ Прокат инструментов P2P</h3>
+                        <p>Доступно в Kokkola, Tampere, Helsinki.</p>
+                        <span class="tag tag-success">Комиссия сервиса: от 10%</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Авто-загрузка раздела Автодор при старте
+        switchSection('avtodor');
+    </script>
+</body>
+</html>
