@@ -18,13 +18,18 @@ def check_endpoint(url, name):
         return False
 
 print("="*60)
-print("🔍 Диагностика эндпоинтов Suomi Master v5.4 FULL...")
+print("🔍 Полная диагностика Suomi Master v5.5 Ecosystem...")
 print("="*60)
 
 endpoints = [
-    ("http://127.0.0.1:8000/api/system/self-check", "Самопроверка базы и модулей"),
-    ("http://127.0.0.1:8000/api/map/wildlife", "Avtodor: Карта троп зверей"),
+    ("http://127.0.0.1:8000/api/system/self-check", "Самопроверка БД и модулей"),
+    ("http://127.0.0.1:8000/api/map/wildlife", "Avtodor: Тропы лосей/медведей"),
+    ("http://127.0.0.1:8000/api/map/harvest", "Грибы & Ягоды"),
+    ("http://127.0.0.1:8000/api/map/ev", "EV Зарядки"),
+    ("http://127.0.0.1:8000/api/map/legal", "Зоны Erä-Lupa"),
+    ("http://127.0.0.1:8000/api/map/free-shelters", "Избушки Autiotupa/Laavu"),
     ("http://127.0.0.1:8000/api/auto/maintenance-guide", "Авто-диагностика & Ремонт"),
+    ("http://127.0.0.1:8000/map", "Веб-интерфейс Карты"),
     ("http://127.0.0.1:8000/", "Корневой статус системы")
 ]
 
@@ -35,7 +40,7 @@ for url, name in endpoints:
 
 print("-" * 60)
 if failed == 0:
-    print("🎉 Все сервисы Suomi Master v5.4 работают идеально!")
+    print("🎉 ВСЕ 9 СЕРВИСОВ Suomi Master v5.5 РАБОТАЮТ ИДЕАЛЬНО!")
 else:
     print(f"⚠️ Ошибки на {failed} эндпоинтах.")
 print("="*60)

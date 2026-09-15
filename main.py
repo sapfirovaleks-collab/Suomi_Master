@@ -195,3 +195,14 @@ async def self_check(db = Depends(get_db)):
 @app.get("/")
 def root():
     return {"message": "Suomi Master v5.5 FULL Ecosystem", "status": "OK", "all_markers_active": True}
+
+@app.get("/api/auto/maintenance-guide", tags=["Auto Repair Extended"])
+async def get_auto_maintenance_guide(db = Depends(get_db)):
+    async with db.execute("SELECT car_model, system_category, issue_or_part, specifications, fix_instruction FROM auto_maintenance LIMIT 200") as cur:
+        rows = await cur.fetchall()
+    return {"guides": [{"car_model": r[0], "system_category": r[1], "issue_or_part": r[2], "specifications": r[3], "fix_instruction": r[4]} for r in rows]}
+
+@app.get("/map", response_class=HTMLResponse, tags=["UI"])
+async def serve_map():
+    with open("templates/index.html", "r", encoding="utf-8") as f:
+        return f.read()
