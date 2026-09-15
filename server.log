@@ -1,2 +1,8 @@
-nohup: ignoring input
-nohup: failed to run command 'uvicorn': No such file or directory
+INFO:     Started server process [20897]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:48694 - "GET /api/system/self-check HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48696 - "GET /api/map/wildlife HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48702 - "GET /api/auto/maintenance-guide HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48718 - "GET / HTTP/1.1" 200 OK
