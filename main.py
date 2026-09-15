@@ -1,4 +1,28 @@
-import os
+cd /workspaces/Suomi_Master
+
+# Сохрани свой main.py отдельно (у тебя 9+ изменений)
+cp main.py main_my_backup.py
+
+# Сохрани все изменения в stash
+git stash push -m "save my changes" --include-untracked
+
+# Теперь pull сработает
+git pull
+
+# Верни свой main.py обратно (он точнее чем на гитхабе)
+cp main_my_backup.py main.py
+git status# Убей все старое (у тебя 7 bash висело)
+docker compose down
+docker compose -f docker-compose.prod.yml down 2>/dev/null; true
+pkill -f uvicorn; true
+
+# Запусти ТОЛЬКО простой файл
+docker compose -f docker-compose.yml up -d --build
+
+# Подожди 15 сек
+sleep 15
+docker compose -f docker-compose.yml logs app --tail 30
+docker compose -f docker-compose.yml psload_test.pyfix_git_and_docker.shimport os
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import FastAPI, Request, HTTPException, Depends, status, UploadFile, File
