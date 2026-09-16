@@ -1,13 +1,1 @@
-INFO:     Started server process [6055]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:57938 - "GET /api/system/self-check HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57942 - "GET /api/map/wildlife HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57950 - "GET /api/map/harvest HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57966 - "GET /api/map/ev HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57976 - "GET /api/map/legal HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57986 - "GET /api/map/free-shelters HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58002 - "GET /api/auto/maintenance-guide HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58012 - "GET /map HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58020 - "GET / HTTP/1.1" 200 OK
+nohup: ignoring input
