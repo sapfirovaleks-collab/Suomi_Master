@@ -125,3 +125,47 @@ async def serve_map():
 @app.get("/")
 def root():
     return {"status": "OK", "version": "5.6-ultra-core", "engine": "ACTIVE"}
+
+# === STRIPE BILLING & AUTH MODULES ===
+import stripe
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "sk_test_placeholder")
+stripe.api_key = STRIPE_SECRET_KEY
+
+class UserAuth(BaseModel):
+    email: str
+    password: str
+    name: Optional[str] = "User"
+
+@app.post("/api/auth/register")
+async def register_user(user: UserAuth, db = Depends(get_db)):
+    try:
+        async with db.execute("INSERT INTO user_profiles (email, name) VALUES (?, ?)", (user.email, user.name)) as cur:
+            await db.commit()
+            uid = cur.lastrowid
+        return {"id": uid, "email": user.email, "status": "REGISTERED"}
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": "User already exists or DB error", "detail": str(e)})
+
+@app.post("/api/billing/create-checkout-session")
+async def create_checkout_session(user_email: str = Query(...), plan: str = Query("pro_monthly")):
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            customer_email=user_email,
+            line_items=[{
+                'price_data': {
+                    'currency': 'eur',
+                    'product_data': {'name': 'Suomi Master PRO Subscription'},
+                    'unit_amount': 999 if plan == "pro_monthly" else 8900,
+                    'recurring': {'interval': 'month' if plan == "pro_monthly" else 'year'},
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url='https://suomi-master.fi/map?success=true',
+            cancel_url='https://suomi-master.fi/map?canceled=true',
+        )
+        return {"checkout_url": session.url, "session_id": session.id, "status": "OK"}
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": "Stripe Session Error", "detail": str(e)})
