@@ -1,0 +1,10 @@
+{
+  "appId": "com.suomimaster.app",
+  "appName": "Suomi Master",
+  "webDir": "templates",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "http://127.0.0.1:8000/map",
+    "cleartext": true
+  }
+}

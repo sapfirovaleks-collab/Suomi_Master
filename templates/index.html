@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suomi Master v5.6 COMPLETE</title>
+    <title>Suomi Master App v5.6</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -18,18 +20,13 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
         
-        #sidebar { width: 400px; background: var(--panel-bg); backdrop-filter: blur(10px); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 1000; }
+        #sidebar { width: 380px; background: var(--panel-bg); backdrop-filter: blur(10px); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 1000; }
         .header { padding: 14px; border-bottom: 1px solid var(--border-color); background: #fff; }
         .header-top { display: flex; justify-content: space-between; align-items: center; }
         .header h1 { font-size: 1.1rem; font-weight: 700; color: var(--accent-blue); }
         
-        .lang-select { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); background: #f1f5f9; cursor: pointer; }
-
-        /* Weather Bar */
+        .pwa-install-btn { width: 100%; padding: 8px; background: #16a34a; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; margin-top: 6px; display: none; }
         .weather-bar { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 8px; margin-top: 8px; font-size: 0.75rem; color: #1e40af; }
-        .weather-bar span { font-weight: 600; }
-
-        /* SOS Button */
         .sos-btn { width: 100%; padding: 8px; background: var(--accent-red); color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; margin-top: 6px; }
 
         .nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px; background: #f1f5f9; }
@@ -48,13 +45,10 @@
     <div id="sidebar">
         <div class="header">
             <div class="header-top">
-                <h1 id="txt-title">🇫🇮 Suomi Master Geo</h1>
-                <select class="lang-select" onchange="changeLanguage(this.value)">
-                    <option value="ru">RU 🇷🇺</option>
-                    <option value="fi">FI 🇫🇮</option>
-                    <option value="en">EN 🇬🇧</option>
-                </select>
+                <h1>🇫🇮 Suomi Master App</h1>
+                <button onclick="locateUser()" style="background:none;border:none;cursor:pointer;font-size:1.1rem">📡</button>
             </div>
+            <button id="pwa-btn" class="pwa-install-btn" onclick="installPWA()">📲 Установить Приложение (PWA)</button>
             
             <div class="weather-bar" id="weather-info">
                 🌡️ Загрузка погоды...
@@ -76,11 +70,38 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const map = L.map('map').setView([63.8333, 23.1333], 7);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© OpenStreetMap, © CARTO' }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
 
         let currentLayers = [];
+        let deferredPrompt;
 
-        // 🌦️ Подгрузка live погоды с Open-Meteo
+        // PWA Installation Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Service Worker Registered"));
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-btn').style.display = 'block';
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('pwa-btn').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        function locateUser() {
+            map.locate({setView: true, maxZoom: 12, enableHighAccuracy: true});
+        }
+
         async function fetchLiveWeather() {
             try {
                 const res = await fetch('/api/weather/live?lat=63.8333&lng=23.1333');
@@ -88,18 +109,15 @@
                 document.getElementById('weather-info').innerHTML = `
                     🌡️ <b>Температура:</b> ${w.temperature_c}°C | 🌬️ ${w.windspeed_kmh} км/ч<br>
                     🧊 <b>Статус льда:</b> <span>${w.ice_safety}</span><br>
-                    🌌 <b>Аврора Kp:</b> ${w.aurora_kp_index} ${w.aurora_visible ? '✨ Видимо!' : ''}
+                    🌌 <b>Аврора Kp:</b> ${w.aurora_kp_index} ${w.aurora_visible ? '✨' : ''}
                 `;
-            } catch(e) {
-                document.getElementById('weather-info').innerHTML = '🌡️ Погода: Коккола -2°C (Ясно)';
-            }
+            } catch(e) { document.getElementById('weather-info').innerHTML = '🌡️ Погода: Коккола -2°C (Ясно)'; }
         }
 
-        // 🚨 SOS вызов
         async function triggerSOS() {
             const res = await fetch('/api/system/tyre-compliance');
             const data = await res.json();
-            alert(`🚨 ЭКСТРЕННЫЙ ВЫЗОВ (SUOMI 112):\n\n• Общий номер службы спасения: 112\n• Эвакуатор (Hinauspalvelu): ${data.emergency_numbers.towing_hinauspalvelu}\n• Рекомендация по резине: ${data.recommendation}`);
+            alert(`🚨 ЭКСТРЕННЫЙ ВЫЗОВ (SUOMI 112):\n\n• Общий номер службы спасения: 112\n• Эвакуатор: ${data.emergency_numbers.towing_hinauspalvelu}\n• Рекомендация: ${data.recommendation}`);
         }
 
         function clearMapLayers() { currentLayers.forEach(l => map.removeLayer(l)); currentLayers = []; }

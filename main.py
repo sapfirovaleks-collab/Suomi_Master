@@ -206,3 +206,13 @@ async def get_auto_maintenance_guide(db = Depends(get_db)):
 async def serve_map():
     with open("templates/index.html", "r", encoding="utf-8") as f:
         return f.read()
+
+@app.get("/manifest.json")
+async def get_manifest():
+    with open("templates/manifest.json", "r", encoding="utf-8") as f:
+        return JSONResponse(content=ast.literal_eval(f.read()) if False else httpx.sys.modules['json'].load(f))
+
+@app.get("/sw.js")
+async def get_sw():
+    with open("templates/sw.js", "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read(), media_type="application/javascript")
