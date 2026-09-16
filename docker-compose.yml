@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: suomi_app_autonomous
+    restart: unless-stopped
+    environment:
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-SuomiMaster_Kokkola_2026_ChangeMe!}
+      CORS_ORIGINS: "*"
+      WEATHER_LAT: 63.8333
+      WEATHER_LNG: 23.1333
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./templates:/app/templates
+      - ./plugins:/app/plugins
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1 --log-level info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/system/self-check"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
