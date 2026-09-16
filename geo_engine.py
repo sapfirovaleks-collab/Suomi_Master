@@ -1,5 +1,9 @@
-import math
+"""
+Suomi Master - Geo Engine v4.0 - FROM HELSINKI TO NORWEGIAN FJORDS
+Покрытие: 19 регионов Финляндии + Норвегия, Швеция, Арктика до Нордкапа
+"""
 from typing import Dict
+import math
 
 SCANDINAVIA_FULL = [
     ("FI-01", "Uusimaa", "Уусимаа", "Helsinki", 59.90, 60.65, 23.20, 26.40, 60.17, 24.94, "FI", "region"),
@@ -21,7 +25,6 @@ SCANDINAVIA_FULL = [
     ("FI-17", "Kainuu", "Кайнуу", "Kajaani", 63.60, 65.20, 27.00, 30.00, 64.22, 27.73, "FI", "region"),
     ("FI-18", "Lappi", "Лапландия", "Rovaniemi", 66.00, 70.10, 20.00, 30.00, 66.50, 25.72, "FI", "region"),
     ("FI-19", "Ahvenanmaa", "Аландские острова", "Mariehamn", 59.70, 60.80, 19.20, 21.10, 60.09, 19.93, "FI", "region"),
-
     ("NO-01", "Finnmark", "Финнмарк - Нордкап", "Alta", 69.00, 71.50, 20.00, 31.50, 70.07, 24.00, "NO", "fjord_arctic"),
     ("NO-02", "Troms", "Тромс - Лофотены", "Tromsø", 68.00, 70.00, 16.00, 23.00, 69.64, 18.95, "NO", "fjord"),
     ("NO-03", "Nordland", "Нурланн - Лофотены", "Bodø", 65.00, 69.00, 11.00, 17.50, 67.28, 14.40, "NO", "fjord"),
@@ -29,14 +32,14 @@ SCANDINAVIA_FULL = [
     ("NO-05", "Vestland", "Вестланн - Согне-фьорд", "Bergen", 59.50, 62.50, 4.50, 8.50, 60.39, 5.32, "NO", "fjord"),
     ("NO-06", "Møre og Romsdal", "Мёре - Гейрангер-фьорд", "Ålesund", 61.50, 63.50, 5.00, 9.00, 62.47, 6.15, "NO", "fjord"),
     ("NO-07", "Rogaland", "Ругаланн - Люсе-фьорд", "Stavanger", 58.00, 60.00, 5.00, 7.50, 58.97, 5.73, "NO", "fjord"),
-
     ("SE-01", "Norrbotten", "Норрботтен - Шведская Лапландия", "Kiruna", 65.50, 69.00, 18.00, 24.00, 67.85, 20.22, "SE", "lapland"),
     ("SE-02", "Västerbotten", "Вестерботтен", "Umeå", 63.50, 66.00, 16.00, 22.00, 63.82, 20.26, "SE", "coast"),
     ("SE-03", "Lapland-SW", "Шведская Лапландия - Абиску", "Abisko", 67.50, 69.50, 17.00, 21.00, 68.35, 18.81, "SE", "fjell"),
-
     ("AR-01", "Barents Sea", "Баренцево море", "Nordkapp", 70.50, 72.00, 20.00, 32.00, 71.17, 25.78, "AR", "arctic"),
     ("AR-02", "Norwegian Sea - Lofoten", "Норвежское море - Лофотены", "Reine", 67.00, 69.00, 11.50, 14.50, 68.09, 13.09, "NO", "lofoten"),
 ]
+
+FINLAND_REGIONS_ACCURATE = [r for r in SCANDINAVIA_FULL if r[10] == "FI"]
 
 def haversine(lat1, lng1, lat2, lng2):
     R = 6371.0
@@ -56,7 +59,6 @@ def detect_region_accurate(lat: float, lng: float) -> Dict:
                 "code": code, "name_fi": name_fi, "name_ru": name_ru, "hub": hub,
                 "country": country, "type": rtype, "center": (c_lat, c_lng)
             }))
-    
     if not candidates:
         closest = min(SCANDINAVIA_FULL, key=lambda x: haversine(lat, lng, x[8], x[9]))
         code, name_fi, name_ru, hub, _, _, _, _, c_lat, c_lng, country, rtype = closest
@@ -65,7 +67,6 @@ def detect_region_accurate(lat: float, lng: float) -> Dict:
             "code": code, "name_fi": name_fi, "name_ru": name_ru, "hub": hub,
             "country": country, "type": rtype, "accuracy": "nearest", "distance_km": round(dist,1)
         }
-    
     candidates.sort(key=lambda x: (x[0], x[1]))
     best = candidates[0][2]
     best["accuracy"] = "high"
