@@ -13,11 +13,11 @@ def check_endpoint(url, name):
         return False
 
 print("="*60)
-print("🔍 Диагностика Suomi Master v5.6 ULTRA (14 Эндпоинтов)...")
+print("🔍 Диагностика Suomi Master v5.6 ULTRA MERGED...")
 print("="*60)
 
 endpoints = [
-    ("http://127.0.0.1:8000/api/system/self-check", "Самопроверка"),
+    ("http://127.0.0.1:8000/api/system/self-check", "Самопроверка & Geo coverage"),
     ("http://127.0.0.1:8000/api/weather/live", "Weather & Ice AI"),
     ("http://127.0.0.1:8000/api/system/tyre-compliance", "SOS & Tyres"),
     ("http://127.0.0.1:8000/api/map/tiles-config", "Топо-карты Retkikartta"),
@@ -35,7 +35,7 @@ endpoints = [
 failed = sum(1 for url, name in endpoints if not check_endpoint(url, name))
 print("-" * 60)
 if failed == 0:
-    print("🎉 ВСЕ 14 МОДУЛЕЙ Suomi Master v5.6 ULTRA РАБОТАЮТ ИДЕАЛЬНО!")
+    print("🎉 ВСЕ МОДУЛИ Suomi Master v5.6 ULTRA MERGED РАБОТАЮТ ИДЕАЛЬНО!")
 else:
     print(f"⚠️ Ошибки на {failed} эндпоинтах.")
 print("="*60)
