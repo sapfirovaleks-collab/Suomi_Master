@@ -3,253 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suomi Master v5.6 ULTRA PRO</title>
+    <title>Suomi Master v6.4 AUTO MAX PARTNERS</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#2563eb">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-main: #0f172a;
-            --panel-bg: rgba(15, 23, 42, 0.95);
-            --accent-blue: #38bdf8;
-            --accent-gold: #f59e0b;
-            --accent-red: #ef4444;
-            --text-main: #f8fafc;
-            --border-color: #1e293b;
-            --card-bg: #1e293b;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 400px; background: var(--panel-bg); backdrop-filter: blur(12px); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 1000; }
-        .header { padding: 14px; border-bottom: 1px solid var(--border-color); background: #0f172a; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.15rem; font-weight: 700; color: var(--accent-blue); display: flex; align-items: center; gap: 6px; }
-        .badge-pro { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; }
-        
-        .aurora-widget { background: linear-gradient(135deg, #1e1b4b, #312e81); border: 1px solid #6366f1; border-radius: 8px; padding: 8px 10px; margin-top: 10px; font-size: 0.75rem; color: #e0e7ff; display: flex; justify-content: space-between; align-items: center; }
-        .pwa-install-btn { width: 100%; padding: 8px; background: #16a34a; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; margin-top: 8px; display: none; }
-        .sos-btn { width: 100%; padding: 8px; background: var(--accent-red); color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; margin-top: 6px; }
-
-        .nav-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; padding: 6px; background: #020617; border-bottom: 1px solid var(--border-color); }
-        .tab-btn { background: transparent; border: none; color: #94a3b8; padding: 8px 2px; font-size: 0.65rem; font-weight: 600; cursor: pointer; border-radius: 4px; text-align: center; }
-        .tab-btn.active, .tab-btn:hover { background: #1e293b; color: var(--accent-blue); }
-
-        .content-area { flex: 1; overflow-y: auto; padding: 10px; }
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-        .card h3 { font-size: 0.85rem; color: #f1f5f9; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .card p { font-size: 0.75rem; color: #94a3b8; line-height: 1.3; }
-
-        #map { flex: 1; height: 100%; }
-        .map-layer-btn { position: absolute; top: 10px; right: 10px; z-index: 1000; background: #0f172a; color: #fff; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .camera-box { position: relative; width: 100%; height: 160px; background: #000; border-radius: 6px; overflow: hidden; display: flex; justify-content: center; align-items: center; margin-top: 8px; border: 1px dashed var(--accent-blue); }
+        :root { --bg-main: #0f172a; --panel-bg: rgba(15,23,42,0.95); --accent-blue: #38bdf8; --accent-gold: #f59e0b; --accent-red: #ef4444; --accent-green: #10b981; --text-main: #f8fafc; --border-color: #1e293b; --card-bg: #1e293b; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:var(--bg-main); color:var(--text-main); display:flex; height:100vh; overflow:hidden; }
+        #sidebar { width:420px; background:var(--panel-bg); backdrop-filter:blur(12px); border-right:1px solid var(--border-color); display:flex; flex-direction:column; z-index:1000; }
+        .header { padding:12px; border-bottom:1px solid var(--border-color); background:#0f172a; }
+        .header-top { display:flex; justify-content:space-between; align-items:center; }
+        .header h1 { font-size:1.1rem; font-weight:700; color:var(--accent-blue); display:flex; align-items:center; gap:6px; }
+        .badge-pro { background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-size:0.6rem; padding:2px 5px; border-radius:4px; font-weight:800; }
+        .badge-max { background:linear-gradient(135deg,#38bdf8,#0284c7); color:#fff; font-size:0.6rem; padding:2px 5px; border-radius:4px; font-weight:800; }
+        .nav-tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:2px; padding:5px; background:#020617; border-bottom:1px solid var(--border-color); }
+        .tab-btn { background:transparent; border:none; color:#94a3b8; padding:7px 2px; font-size:0.62rem; font-weight:600; cursor:pointer; border-radius:4px; text-align:center; }
+        .tab-btn.active, .tab-btn:hover { background:#1e293b; color:var(--accent-blue); }
+        .content-area { flex:1; overflow-y:auto; padding:8px; }
+        .card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; padding:9px; margin-bottom:7px; }
+        .card h3 { font-size:0.82rem; color:#f1f5f9; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; }
+        .card p { font-size:0.72rem; color:#94a3b8; line-height:1.35; }
+        #map { flex:1; height:100%; }
+        .input-mini { background:#1e293b; color:#fff; border:1px solid #334155; border-radius:4px; padding:4px 6px; font-size:0.7rem; width:70px; }
+        .btn-mini { background:#0284c7; color:#fff; border:none; border-radius:4px; padding:5px 8px; font-size:0.7rem; font-weight:600; cursor:pointer; }
     </style>
 </head>
 <body>
     <div id="sidebar">
         <div class="header">
             <div class="header-top">
-                <h1>🇫🇮 Suomi Master <span class="badge-pro">PRO</span></h1>
-                <button onclick="locateUser()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:#fff" title="Определить GPS">📡</button>
+                <h1>🇫🇮 Suomi Master <span class="badge-pro">PRO</span><span class="badge-max">6.4 MAX</span></h1>
             </div>
-            
-            <!-- 1. MODULE: AURORA PRO RADAR -->
-            <div class="aurora-widget" id="aurora-box">
-                <div>
-                    <b>🌌 Aurora Radar PRO</b><br>
-                    <span id="aurora-text">Загрузка данных Kp...</span>
-                </div>
-                <button onclick="fetchLiveWeather()" style="background:#4338ca;border:none;color:#fff;padding:4px 8px;border-radius:4px;font-size:0.65rem;cursor:pointer;">Обновить</button>
-            </div>
-
-            <button id="pwa-btn" class="pwa-install-btn" onclick="installPWA()">📲 Установить PWA Приложение</button>
-            <button class="sos-btn" onclick="triggerSOS()">🚨 SOS / Вызов 112 Suomi</button>
         </div>
-
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchSection('avtodor')">🚗 Авто</button>
-            <button class="tab-btn" onclick="switchSection('harvest')">🍄 ИИ Грибы</button>
-            <button class="tab-btn" onclick="switchSection('norway')">🎣 Фьорды</button>
-            <button class="tab-btn" onclick="switchSection('fuel')">⛽ Топливо</button>
-            <button class="tab-btn" onclick="switchSection('offline')">🗺️ Кеш карт</button>
         </div>
         <div class="content-area" id="list-container"></div>
     </div>
-    
-    <div id="map">
-        <button class="map-layer-btn" onclick="toggleTopoMap()">🗺️ Топо-карта: Вкл/Выкл</button>
-    </div>
-
+    <div id="map"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const streetTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© OpenStreetMap' });
-        const topoTile = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '© OpenTopoMap' });
-        const map = L.map('map', { layers: [streetTile] }).setView([63.8333, 23.1333], 7);
-        let isTopo = false;
+        const map = L.map('map').setView([63.8333, 23.1333], 7);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
 
-        function toggleTopoMap() {
-            if (isTopo) { map.removeLayer(topoTile); map.addLayer(streetTile); isTopo = false; }
-            else { map.removeLayer(streetTile); map.addLayer(topoTile); isTopo = true; }
-        }
-
-        let currentLayers = [];
-        let deferredPrompt;
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA PRO Active"));
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            document.getElementById('pwa-btn').style.display = 'block';
-        });
-
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
-                    document.getElementById('pwa-btn').style.display = 'none';
-                    deferredPrompt = null;
-                });
+        function openAffiliate(url, partnerId, dealId) {
+            if(partnerId || dealId) {
+                fetch(`/api/auto/partners/click?partner_id=${partnerId||0}${dealId?`&deal_id=${dealId}`:''}`, {method:'POST'}).catch(()=>{});
             }
+            window.open(url + (url.includes('?')?'&':'?')+'utm_source=suomi-master', '_blank');
         }
-
-        function locateUser() { map.locate({setView: true, maxZoom: 12, enableHighAccuracy: true}); }
-
-        async function fetchLiveWeather() {
-            try {
-                const res = await fetch('/api/weather/live?lat=63.8333&lng=23.1333');
-                const w = await res.json();
-                document.getElementById('aurora-text').innerHTML = `
-                    Kp: <b>${w.aurora_kp_index}</b> ${w.aurora_visible ? '✨ Видно!' : '⚪ Низкая'} | 🌡️ ${w.temperature_c}°C
-                `;
-            } catch(e) { document.getElementById('aurora-text').innerText = 'Kp: 2.1 | 🌡️ -2°C'; }
-        }
-
-        async function triggerSOS() {
-            const res = await fetch('/api/system/tyre-compliance');
-            const data = await res.json();
-            alert(`🚨 ЭКСТРЕННЫЙ ВЫЗОВ (SUOMI 112 PRO):\n\n• Телефон службы спасения: 112\n• Эвакуатор Hinaus: ${data.emergency_numbers.towing_hinauspalvelu}\n• Рекомендация: ${data.recommendation}`);
-        }
-
-        function clearMapLayers() { currentLayers.forEach(l => map.removeLayer(l)); currentLayers = []; }
 
         async function switchSection(section) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            if (event) event.target.classList.add('active');
-            clearMapLayers();
-
             const container = document.getElementById('list-container');
-            container.innerHTML = '<p style="color:#64748b;font-size:0.75rem;">Загрузка данных PRO...</p>';
-
-            // 2. MODULE: GARAGE & ROAD ASSISTANT
             if (section === 'avtodor') {
                 container.innerHTML = `
-                    <div class="card" style="border-color:#38bdf8;">
-                        <h3>🏎️ Гараж & Автодор PRO <span class="badge-pro">RENAULT</span></h3>
-                        <p>• <b>Шины:</b> Nastarenkaat (Шипы 205/60 R16, 2.3 bar)</p>
-                        <p>• <b>Фарам/Свет:</b> H7 галоген / LED комплекты</p>
+                <div class="card" style="border-color:#38bdf8;background:linear-gradient(135deg,#0c4a6e,#082f49);">
+                    <h3>🏎️ AUTO MAX PARTNERS 6.4</h3>
+                    <p style="font-size:0.68rem;">Renault Scenic 2 1.6 16V • Партнеры Коккола, шины, страховка, ТО</p>
+                    <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;">
+                        <button class="btn-mini" style="background:#7e22ce;" onclick="loadAutoDeals()">🔥 HOT Deals</button>
+                        <button class="btn-mini" style="background:#0e7490;" onclick="loadAutoPartners()">🤝 Партнеры</button>
+                        <button class="btn-mini" style="background:#065f46;" onclick="loadTyres()">🛞 Шины</button>
                     </div>
+                </div>
+                <div id="auto-deals-list"></div>
+                <div id="auto-partners-list"></div>
+                <div id="auto-tyres-list"></div>
+                <div id="auto-insurance-list"></div>
                 `;
-                const res = await fetch('/api/map/wildlife');
-                const data = await res.json();
-                data.wildlife_markers.forEach(item => {
-                    const circle = L.circle([item.lat, item.lng], { color: '#ef4444', fillColor: '#f87171', fillOpacity: 0.35, radius: 8000 }).addTo(map).bindPopup(`<b>🫎 ${item.title_ru}</b><br>${item.note}`);
-                    currentLayers.push(circle);
-                    container.innerHTML += `<div class="card"><h3>🫎 ${item.title_ru}</h3><p>${item.note}</p></div>`;
-                });
-
-            // 5. MODULE: VISION AI SCANNER UI
-            } else if (section === 'harvest') {
-                container.innerHTML = `
-                    <div class="card" style="background:#064e3b;border-color:#10b981;">
-                        <h3>🍄 Vision AI Pro Сканер</h3>
-                        <p>Сфотографируйте гриб для проверки на ядовитых двойников (Горчак / Sappitatti):</p>
-                        <div class="camera-box">
-                            <input type="file" id="mushroom-file" accept="image/*" style="opacity:0;position:absolute;width:100%;height:100%;cursor:pointer;" onchange="scanMushroom()">
-                            <span style="font-size:0.75rem;color:#10b981;font-weight:700;">📷 Нажмите для снимка</span>
-                        </div>
-                        <div id="scan-result" style="margin-top:8px;font-size:0.75rem;"></div>
-                    </div>
-                `;
-                const res = await fetch('/api/map/harvest');
-                const data = await res.json();
-                data.harvest_spots.forEach(item => {
-                    const circle = L.circle([item.lat, item.lng], { color: '#10b981', fillColor: '#34d399', fillOpacity: 0.3, radius: 3000 }).addTo(map).bindPopup(`<b>🍄 ${item.name_ru}</b><br>${item.note}`);
-                    currentLayers.push(circle);
-                    container.innerHTML += `<div class="card"><h3>🍄 ${item.name_ru}</h3><p>${item.note} - ${item.season}</p></div>`;
-                });
-
-            // 3. MODULE: FJORD & SEA FISHING PRO
-            } else if (section === 'norway') {
-                const res = await fetch('/api/fishing/norway-rules');
-                const n = await res.json();
-                container.innerHTML = `
-                    <div class="card" style="border-color:#f59e0b;">
-                        <h3>🇳🇴 Трофеи & Приливы PRO</h3>
-                        <p><b>Лимит вывоза филе:</b> ${n.fillet_export_limit_kg} кг / чел</p>
-                        <p><b>Минимум:</b> Палтус > ${n.minimum_sizes_cm.atlantic_halibut_палтус} см, Треска > ${n.minimum_sizes_cm.cod_треска} см</p>
-                        <div style="margin-top:6px;background:#0f172a;padding:6px;border-radius:4px;font-size:0.7rem;">
-                            <b>⚖️ Калькулятор веса:</b> <input type="number" id="fish-len" placeholder="Длина см" style="width:70px;background:#1e293b;color:#fff;border:1px solid #334155;" oninput="calcFishWeight()"> см = <b id="fish-weight">0</b> кг
-                        </div>
-                    </div>
-                `;
-
-            // 4. MODULE: FUEL & EV
-            } else if (section === 'fuel') {
-                const res = await fetch('/api/fuel/prices');
-                const f = await res.json();
-                container.innerHTML = `<div class="card"><h3>⛽ Монитор топлива (${f.region})</h3></div>`;
-                f.stations.forEach(st => {
-                    container.innerHTML += `<div class="card"><h3>🏪 ${st.brand}</h3><p>⛽ 95E10: <b>${st.fuel_95} €</b> | 98E5: <b>${st.fuel_98} €</b> | 🛢️ Дизель: <b>${st.diesel} €</b></p></div>`;
-                });
-
-            // 4. MODULE: OFFLINE TILE MANAGER UI
-            } else if (section === 'offline') {
-                container.innerHTML = `
-                    <div class="card">
-                        <h3>🗺️ Оффлайн Навигация PRO</h3>
-                        <p>Загрузка карт Финляндии и Норвегии в память смартфона:</p>
-                        <button onclick="downloadTiles()" style="margin-top:8px;width:100%;padding:6px;background:#0284c7;color:#fff;border:none;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">📥 Скачать регион Kokkola (Offline)</button>
-                        <p id="tile-status" style="margin-top:6px;font-size:0.7rem;color:#38bdf8;"></p>
-                    </div>
-                `;
+                loadAutoDeals(); loadAutoPartners(); loadTyres(); loadInsurance();
             }
         }
 
-        function calcFishWeight() {
-            const len = parseFloat(document.getElementById('fish-len').value) || 0;
-            // Стандартный расчёт массы трески: W = 0.00001 * L^3
-            const weight = (0.000009 * Math.pow(len, 3.05)).toFixed(2);
-            document.getElementById('fish-weight').innerText = weight;
+        async function loadAutoPartners() {
+            const el = document.getElementById('auto-partners-list'); if(!el) return;
+            try {
+                const res = await fetch('/api/auto/partners?city=Kokkola');
+                const data = await res.json();
+                let html = `<div class="card"><h3>🤝 Партнеры (${data.count})</h3>`;
+                data.partners.forEach(p=>{
+                    html += `<div style="margin-top:4px;padding:5px;background:#0f172a;border-radius:4px;">
+                        <b>${p.company}</b> - ${p.category}<br>
+                        <button class="btn-mini" style="margin-top:4px;background:#7e22ce;" onclick="openAffiliate('${p.affiliate_url}', ${p.id}, null)">🛒 Открыть скидку</button>
+                    </div>`;
+                });
+                html += '</div>'; el.innerHTML = html;
+            } catch(e){}
         }
 
-        async function downloadTiles() {
-            document.getElementById('tile-status').innerText = '⏳ Сохранение тайлов карты в оффлайн-кеш PWA...';
-            setTimeout(() => {
-                document.getElementById('tile-status').innerText = '✅ Регион сохранён! Карта доступна без интернета.';
-            }, 1500);
+        async function loadAutoDeals() {
+            const el = document.getElementById('auto-deals-list'); if(!el) return;
+            try {
+                const res = await fetch('/api/auto/deals');
+                const data = await res.json();
+                let html = `<div class="card" style="border-color:#ec4899;"><h3>🔥 HOT Deals</h3>`;
+                data.deals.forEach(d=>{
+                    html += `<div style="margin-top:4px;padding:5px;background:#0f172a;border-radius:4px;">
+                        <b>${d.title}</b> -${d.discount}%<br>
+                        <button class="btn-mini" style="margin-top:4px;background:#ec4899;" onclick="openAffiliate('${d.affiliate_url}', ${d.partner_id}, ${d.id})">🔥 Купить с скидкой</button>
+                    </div>`;
+                });
+                html += '</div>'; el.innerHTML = html;
+            } catch(e){}
         }
 
-        async function scanMushroom() {
-            const input = document.getElementById('mushroom-file');
-            const resDiv = document.getElementById('scan-result');
-            if (!input.files[0]) return;
-            resDiv.innerHTML = '⏳ Vision AI анализирует изгиб ножки и шляпку...';
-            const formData = new FormData();
-            formData.append('file', input.files[0]);
-
-            const res = await fetch('/api/ai/harvest-scan', { method: 'POST', body: formData });
-            const data = await res.json();
-            resDiv.innerHTML = `
-                <div style="background:#1e293b;padding:6px;border-radius:4px;border-left:3px solid #10b981;">
-                    <b>✅ Вид:</b> ${data.detected_species_ru}<br>
-                    <b>⚠️ Предупреждение:</b> ${data.toxic_lookalike_warning}
-                </div>
-            `;
+        async function loadTyres() {
+            const el = document.getElementById('auto-tyres-list'); if(!el) return;
+            try {
+                const res = await fetch('/api/auto/tyres/search?size=205/60 R16');
+                const data = await res.json();
+                let html = `<div class="card"><h3>🛞 Шины ${data.size}</h3>`;
+                data.tyres.forEach(t=>{
+                    html += `<div style="margin-top:4px;padding:5px;background:#0f172a;border-radius:4px;">
+                        <b>${t.brand} ${t.model}</b> - ${t.price}€<br>
+                        <button class="btn-mini" style="margin-top:4px;background:#059669;" onclick="openAffiliate('${t.affiliate_url}', 0, null)">🛞 Купить</button>
+                    </div>`;
+                });
+                html += '</div>'; el.innerHTML = html;
+            } catch(e){}
         }
 
-        fetchLiveWeather(); locateUser();
+        async function loadInsurance() {
+            const el = document.getElementById('auto-insurance-list'); if(!el) return;
+            try {
+                const res = await fetch('/api/auto/insurance');
+                const data = await res.json();
+                let html = `<div class="card"><h3>🛡️ Страховка авто</h3>`;
+                data.insurance.forEach(ins=>{
+                    html += `<div style="margin-top:4px;padding:5px;background:#0f172a;border-radius:4px;">
+                        <b>${ins.company} ${ins.type}</b> от ${ins.price_from}€<br>
+                        <button class="btn-mini" style="margin-top:4px;background:#d97706;" onclick="openAffiliate('${ins.affiliate_url}', 0, null)">🛡️ Оформить</button>
+                    </div>`;
+                });
+                html += '</div>'; el.innerHTML = html;
+            } catch(e){}
+        }
+
         switchSection('avtodor');
     </script>
 </body>
