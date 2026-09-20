@@ -39,8 +39,6 @@ SCANDINAVIA_FULL = [
     ("AR-02", "Norwegian Sea - Lofoten", "Норвежское море - Лофотены", "Reine", 67.00, 69.00, 11.50, 14.50, 68.09, 13.09, "NO", "lofoten"),
 ]
 
-FINLAND_REGIONS_ACCURATE = [r for r in SCANDINAVIA_FULL if r[10] == "FI"]
-
 def haversine(lat1, lng1, lat2, lng2):
     R = 6371.0
     dlat = math.radians(lat2-lat1)
@@ -55,18 +53,11 @@ def detect_region_accurate(lat: float, lng: float) -> Dict:
         if lat_min <= lat <= lat_max and lng_min <= lng <= lng_max:
             dist = haversine(lat, lng, c_lat, c_lng)
             area = (lat_max - lat_min) * (lng_max - lng_min)
-            candidates.append((dist, area, {
-                "code": code, "name_fi": name_fi, "name_ru": name_ru, "hub": hub,
-                "country": country, "type": rtype, "center": (c_lat, c_lng)
-            }))
+            candidates.append((dist, area, {"code": code, "name_fi": name_fi, "name_ru": name_ru, "hub": hub, "country": country, "type": rtype, "center": (c_lat, c_lng)}))
     if not candidates:
         closest = min(SCANDINAVIA_FULL, key=lambda x: haversine(lat, lng, x[8], x[9]))
-        code, name_fi, name_ru, hub, _, _, _, _, c_lat, c_lng, country, rtype = closest
-        dist = haversine(lat, lng, c_lat, c_lng)
-        return {
-            "code": code, "name_fi": name_fi, "name_ru": name_ru, "hub": hub,
-            "country": country, "type": rtype, "accuracy": "nearest", "distance_km": round(dist,1)
-        }
+        dist = haversine(lat, lng, closest[8], closest[9])
+        return {"code": closest[0], "name_fi": closest[1], "name_ru": closest[2], "hub": closest[3], "country": closest[10], "type": closest[11], "accuracy": "nearest", "distance_km": round(dist,1)}
     candidates.sort(key=lambda x: (x[0], x[1]))
     best = candidates[0][2]
     best["accuracy"] = "high"
@@ -80,5 +71,5 @@ def get_coverage_info():
         "norway": len([r for r in SCANDINAVIA_FULL if r[10]=="NO"]),
         "sweden": len([r for r in SCANDINAVIA_FULL if r[10]=="SE"]),
         "arctic": len([r for r in SCANDINAVIA_FULL if r[10]=="AR"]),
-        "coverage": "От Балтики до Баренцева моря, от фьордов Бергена до Лофотенов и Нордкапа"
+        "lat_range": "58.0 - 72.0", "lng_range": "4.5 - 32.0"
     }

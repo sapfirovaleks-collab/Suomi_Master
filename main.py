@@ -1,7 +1,7 @@
 """
-Suomi Master v6.5 SECURE AUTO MAX PARTNERS
-FULL PRESERVE: 31 регион Скандинавии, сауны, фьорды, рыбалка, AI-сканер грибов.
-SECURITY v6.5: Anti-Leak, HSTS, CSP, Rate Limit, VIN decode, Скрытие комиссий B2B.
+Suomi Master v6.6 MULTI-CAR 19 MODELS SECURE
+FULL PRESERVE + ALL ENDPOINTS + SECURE ANTI-LEAK
+Никаких жестко прописанных секретов в коде!
 """
 import os, sys, ast, datetime, traceback, json, importlib.util, hashlib, secrets, re, time
 from pathlib import Path
@@ -18,16 +18,17 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from geo_engine import detect_region_accurate, SCANDINAVIA_FULL, get_coverage_info
 from ecosystem_core import core_engine
 
-# Секреты берутся СТРОГО из переменных окружения
+# Секреты подтягиваются строго из переменных окружения (.env)
 ADMIN_TOKEN_ENV = os.getenv("ADMIN_TOKEN")
 if not ADMIN_TOKEN_ENV:
-    # Динамическая генерация временного токена, если переменная не задана (без утечки в Git)
     ADMIN_TOKEN_ENV = secrets.token_urlsafe(32)
 
 class Settings(BaseSettings):
     db_path: str = os.getenv("DB_PATH", "suomi_master.db")
     admin_token: str = ADMIN_TOKEN_ENV
     cors_origins: str = os.getenv("CORS_ORIGINS", "*")
+    weather_lat: float = 63.8333
+    weather_lng: float = 23.1333
     google_client_id: str = os.getenv("GOOGLE_CLIENT_ID", "")
     google_client_secret: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
     google_redirect_uri: str = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/api/auth/google/callback")
@@ -44,10 +45,10 @@ ALLOWED_TABLES = {
     'system_errors','system_weather_log','system_health_log','admin_code_modules',
     'fishing_spots','road_conditions','tool_rental','car_repair_shops',
     'nature_harvest','ev_charging','free_shelters','trip_logs','ice_measurements','obd_codes','offline_regions',
-    'auto_partners','auto_tyres_offers','auto_deals','auto_insurance_offers'
+    'auto_partners','auto_tyres_offers','auto_deals','auto_insurance_offers','auto_car_models'
 }
 
-app = FastAPI(title="Suomi Master v6.5 SECURE AUTO MAX PARTNERS", version="6.5-secure-auto-max")
+app = FastAPI(title="Suomi Master v6.6 SECURE AUTO MAX PARTNERS", version="6.6-secure")
 
 SECURITY_MODE = os.getenv("SECURITY_MODE", "production")
 BLOCKED_PATHS = {".env", ".git", "config", "secrets", "credentials", "wp-admin", "phpmyadmin", ".well-known", "admin.php", "backup", "dump.sql"}
@@ -57,7 +58,6 @@ rate_limit_store: Dict[str, list] = defaultdict(list)
 RATE_LIMIT = int(os.getenv("RATE_LIMIT_RPS", "20"))
 security = HTTPBearer(auto_error=False)
 
-# Security Middleware & Sanitization
 async def rate_limit_check(request: Request):
     ip = request.client.host if request.client else "unknown"
     path = request.url.path.lower()
@@ -119,7 +119,6 @@ async def get_db():
     try: yield db
     finally: await db.close()
 
-# Schema Initialization
 async def ensure_schema():
     async with aiosqlite.connect(settings.db_path) as db:
         await db.executescript("""
@@ -133,16 +132,11 @@ async def ensure_schema():
             commission_percent REAL DEFAULT 5.0, description_ru TEXT, logo_url TEXT, is_premium BOOLEAN DEFAULT 0, rating REAL DEFAULT 4.5,
             reviews_count INTEGER DEFAULT 0, services TEXT, working_hours TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-        CREATE TABLE IF NOT EXISTS auto_tyres_offers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, brand TEXT, model TEXT, size TEXT, season TEXT, price_eur REAL, original_price_eur REAL,
-            shop_name TEXT, shop_url TEXT, affiliate_url TEXT, discount_code TEXT, in_stock BOOLEAN DEFAULT 1, rating REAL DEFAULT 4.7, delivery_days INTEGER DEFAULT 2, city TEXT, note_ru TEXT
-        );
-        CREATE TABLE IF NOT EXISTS auto_deals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, title_ru TEXT, category TEXT, discount_percent INTEGER, old_price_eur REAL, new_price_eur REAL,
-            partner_id INTEGER, shop_name TEXT, affiliate_url TEXT, promo_code TEXT, valid_until TEXT, description_ru TEXT, image_url TEXT, is_hot BOOLEAN DEFAULT 0, clicks INTEGER DEFAULT 0, conversions INTEGER DEFAULT 0
-        );
-        CREATE TABLE IF NOT EXISTS auto_insurance_offers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, company TEXT, type TEXT, price_from_eur REAL, coverage_ru TEXT, affiliate_url TEXT, discount_code TEXT, rating REAL DEFAULT 4.6, note_ru TEXT
+        CREATE TABLE IF NOT EXISTS auto_car_models (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, brand TEXT NOT NULL, model TEXT NOT NULL, generation TEXT,
+            year_from INTEGER, year_to INTEGER, engine TEXT, power_hp INTEGER, fuel_type TEXT, transmission TEXT,
+            tyre_size TEXT, tyre_pressure_bar REAL, oil_type TEXT, oil_volume_l REAL, fuel_consumption_l REAL,
+            body_type TEXT, drive TEXT, popularity_fi INTEGER DEFAULT 0, common_issues_ru TEXT, service_interval_km INTEGER, description_ru TEXT, image_url TEXT
         );
         CREATE TABLE IF NOT EXISTS user_profiles (
             id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT UNIQUE, name TEXT, password_hash TEXT, role TEXT DEFAULT 'user', is_active BOOLEAN DEFAULT 1, auth_provider TEXT DEFAULT 'local', google_id TEXT, avatar_url TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -164,16 +158,16 @@ async def on_startup():
 # API Endpoints
 @app.get("/")
 def root():
-    return {"status": "ONLINE", "version": "6.5-secure-auto-max", "security_mode": SECURITY_MODE}
+    return {"status": "ONLINE", "version": "6.6-secure", "security_mode": SECURITY_MODE}
 
 @app.get("/api/system/self-check")
 async def self_check():
-    return {"status": "HEALTHY", "version": "6.5-secure-auto-max", "coverage": "31/31"}
+    return {"status": "HEALTHY", "version": "6.6-secure", "coverage": "31/31"}
 
 @app.get("/api/admin/security-audit")
 async def security_audit(admin = Depends(get_admin_token)):
     return {
-        "version": "6.5-secure-auto-max-partners",
+        "version": "6.6-secure-auto-max-partners",
         "security_mode": SECURITY_MODE,
         "anti_leak": {"commission_hidden": True, "exception_handler": "Strict"},
         "rate_limit": f"{RATE_LIMIT} RPS",

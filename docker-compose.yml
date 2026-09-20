@@ -1,24 +1,57 @@
+version: '3.8'
+
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: suomi_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: suomi_master
+      POSTGRES_USER: suomi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-SuomiMaster2026_Kokkola_Secure!}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U suomi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: suomi_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: suomi_app_autonomous
-    restart: unless-stopped
+    container_name: suomi_app
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
-      ADMIN_TOKEN: ${ADMIN_TOKEN:-SuomiMaster_Kokkola_2026_ChangeMe!}
+      DATABASE_URL: postgresql://suomi:${POSTGRES_PASSWORD:-SuomiMaster2026_Kokkola_Secure!}@db:5432/suomi_master
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      REDIS_URL: redis://redis:6379/0
       CORS_ORIGINS: "*"
-      WEATHER_LAT: 63.8333
-      WEATHER_LNG: 23.1333
     ports:
       - "8000:8000"
-    volumes:
-      - ./templates:/app/templates
-      - ./plugins:/app/plugins
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1 --log-level info
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/system/self-check"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+
+volumes:
+  postgres_data:
+  redis_data:
