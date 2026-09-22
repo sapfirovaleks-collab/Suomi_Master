@@ -1,0 +1,15 @@
+{
+  "name": "Suomi Master ULTRA v5.6",
+  "short_name": "SuomiMaster",
+  "description": "Finland 19 + Norway fjords to Nordkapp - рыбалка, автодор, аренда, сауны, грибы, EV, топливо",
+  "start_url": "/map",
+  "display": "standalone",
+  "background_color": "#0a1929",
+  "theme_color": "#2563eb",
+  "icons": [{"src": "https://cdn-icons-png.flaticon.com/512/321/321260.png", "sizes": "512x512", "type": "image/png"}],
+  "shortcuts": [
+    {"name": "Карта", "url": "/map", "description": "Открыть карту"},
+    {"name": "Сауны фьордов", "url": "/api/map/saunas?fjord_view=true", "description": "Фьорд сауны"},
+    {"name": "Топливо Коккола", "url": "/api/fuel/prices", "description": "Цены на топливо"}
+  ]
+}
