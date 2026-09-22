@@ -1,3 +1,4 @@
+from fastapi.middleware.gzip import GZipMiddleware
 """
 Suomi Master v6.6 MULTI-CAR 19 MODELS SECURE
 FULL PRESERVE + ALL ENDPOINTS + SECURE ANTI-LEAK
@@ -48,7 +49,9 @@ ALLOWED_TABLES = {
     'auto_partners','auto_tyres_offers','auto_deals','auto_insurance_offers','auto_car_models'
 }
 
-app = FastAPI(title="Suomi Master v6.6 SECURE AUTO MAX PARTNERS", version="6.6-secure")
+app = FastAPI
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+(title="Suomi Master v6.6 SECURE AUTO MAX PARTNERS", version="6.6-secure")
 
 SECURITY_MODE = os.getenv("SECURITY_MODE", "production")
 BLOCKED_PATHS = {".env", ".git", "config", "secrets", "credentials", "wp-admin", "phpmyadmin", ".well-known", "admin.php", "backup", "dump.sql"}
