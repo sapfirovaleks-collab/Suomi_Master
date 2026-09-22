@@ -8,3 +8,8 @@ __pycache__/
 postgres_data/
 redis_data/
 certbot/
+.env
+*.env
+*.tar.gz
+*.log
+server.log
