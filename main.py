@@ -238,3 +238,13 @@ async def serve_map():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+@app.get('/terms')
+async def get_terms():
+    from fastapi.responses import FileResponse
+    return FileResponse('templates/terms.html')
+
+@app.get('/privacy')
+async def get_privacy():
+    from fastapi.responses import FileResponse
+    return FileResponse('templates/privacy.html')
