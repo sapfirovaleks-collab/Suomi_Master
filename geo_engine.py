@@ -73,3 +73,44 @@ def get_coverage_info():
         "arctic": len([r for r in SCANDINAVIA_FULL if r[10]=="AR"]),
         "lat_range": "58.0 - 72.0", "lng_range": "4.5 - 32.0"
     }
+
+
+# --- LAPLAND & RENTAL EXTENSION ---
+LAPLAND_RENTAL_DATA = [
+    {
+        "id": 201,
+        "name": "Santa Claus Holiday Village Cottages",
+        "category": "accommodation",
+        "lat": 66.5438, "lng": 25.8480,
+        "price": "180€ / yö",
+        "icon": "🏡",
+        "description": "Majoitus Napapiirillä Joulupukin kylän sydämessä."
+    },
+    {
+        "id": 202,
+        "name": "Husky Park Rovaniemi",
+        "category": "husky_safari",
+        "lat": 66.5450, "lng": 25.8510,
+        "price": "45€ / henkilö",
+        "icon": "🐕",
+        "description": "Aitoja elämyksiä ja ajeluita siperianhuskyilla."
+    },
+    {
+        "id": 203,
+        "name": "Arctic Reindeer Farm & Safaris",
+        "category": "reindeer_safari",
+        "lat": 66.5410, "lng": 25.8390,
+        "price": "50€ / henkilö",
+        "icon": "🦌",
+        "description": "Porotelttailua, rekiajelua ja Joulupukin porot."
+    },
+    {
+        "id": 204,
+        "name": "Rovaniemi Riverside Apartments & Sauna",
+        "category": "accommodation",
+        "lat": 66.5000, "lng": 25.7300,
+        "price": "120€ / yö",
+        "icon": "🔑",
+        "description": "Modernit huoneistot joen rannalla omalla saunalla."
+    }
+]
