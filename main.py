@@ -89,3 +89,8 @@ Kysymys: {req.prompt}"
         }
     except Exception as e:
         return {'status': 'error', 'detail': str(e)}
+
+@app.get('/about')
+async def get_about():
+    from fastapi.responses import FileResponse
+    return FileResponse('templates/about.html')
