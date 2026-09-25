@@ -94,3 +94,17 @@ Kysymys: {req.prompt}"
 async def get_about():
     from fastapi.responses import FileResponse
     return FileResponse('templates/about.html')
+
+
+# --- B2B LISTING PRICING CONFIG ---
+LISTING_PRICING = {
+    "c2c_free": {"price_eur": 0.0, "period": "forever", "features": ["Базовое место на карте"]},
+    "c2c_pro": {"price_eur": 4.90, "period": "month", "features": ["Выделенный маркер", "Приоритет в поиске"]},
+    "b2b_basic": {"price_eur": 9.90, "period": "month", "features": ["Прямые ссылки", "Телефон/Email", "Аналитика просмотров"]},
+    "b2b_pro": {"price_eur": 19.90, "period": "month", "features": ["Рекомендации ИИ-ассистента", "VIP-маркер", "Без комиссии"]},
+    "b2b_enterprise": {"price_eur": 49.90, "period": "month", "features": ["Полная интеграция сетки объектов", "Персональный менеджер"]}
+}
+
+@app.get('/api/pricing')
+async def get_pricing():
+    return {"status": "ok", "pricing": LISTING_PRICING}
