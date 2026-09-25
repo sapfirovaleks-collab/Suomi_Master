@@ -97,12 +97,32 @@ async def get_about():
 
 
 # --- B2B LISTING PRICING CONFIG ---
+# --- B2B & C2C LISTING PRICING CONFIG (UPDATED HIGH-MARGIN RATES) ---
 LISTING_PRICING = {
-    "c2c_free": {"price_eur": 0.0, "period": "forever", "features": ["Базовое место на карте"]},
-    "c2c_pro": {"price_eur": 4.90, "period": "month", "features": ["Выделенный маркер", "Приоритет в поиске"]},
-    "b2b_basic": {"price_eur": 9.90, "period": "month", "features": ["Прямые ссылки", "Телефон/Email", "Аналитика просмотров"]},
-    "b2b_pro": {"price_eur": 19.90, "period": "month", "features": ["Рекомендации ИИ-ассистента", "VIP-маркер", "Без комиссии"]},
-    "b2b_enterprise": {"price_eur": 49.90, "period": "month", "features": ["Полная интеграция сетки объектов", "Персональный менеджер"]}
+    "c2c_single": {
+        "name": "Yksityishenkilö (1 ilmoitus)",
+        "price_eur": 3.90,
+        "period": "30 päivää",
+        "description": "Yksittäisen työkalun, veneen, mökin tai varusteen vuokrausilmoitus."
+    },
+    "c2c_boost": {
+        "name": "Yksityishenkilö VIP / Nosto",
+        "price_eur": 6.90,
+        "period": "14 päivää",
+        "description": "Nosto kartan kärkeen, VIP-kuvake + AI-suositukset."
+    },
+    "b2b_basic": {
+        "name": "Yritys Perus (Mökit, Saunat, Huolto)",
+        "price_eur": 14.90,
+        "period": "kuukausi",
+        "description": "Suorat yhteystiedot, kotisivulinkit ja paikka kartalla."
+    },
+    "b2b_pro": {
+        "name": "Yritys Pro + AI Suositukset",
+        "price_eur": 29.90,
+        "period": "kuukausi",
+        "description": "Tekoäly suosittelee kohdettasi käyttäjille + VIP-näkyvyys."
+    }
 }
 
 @app.get('/api/pricing')
