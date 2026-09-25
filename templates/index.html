@@ -152,5 +152,19 @@
     ⚠️ Kartat ovat viitteellisiä. Ei viralliseen merenkulkuun.
 </div>
 
+
+    <div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: white; padding: 15px; text-align: center; border-top: 1px solid #334155; z-index: 2000; display: none;">
+        <span>Tämä sivusto käyttää evästeitä käyttökokemuksen parantamiseen ja palvelun turvallisuuteen. <a href="/privacy" style="color: #38bdf8;">Lue lisää</a></span>
+        <button onclick="acceptCookies()" style="background: #22c55e; color: white; border: none; padding: 8px 16px; margin-left: 15px; border-radius: 6px; cursor: pointer;">Hyväksy</button>
+    </div>
+    <script>
+            document.getElementById('cookie-banner').style.display = 'block';
+        }
+        function acceptCookies() {
+            localStorage.setItem('cookie_consent', 'true');
+            document.getElementById('cookie-banner').style.display = 'none';
+        }
+    </script>
+
 </body>
 </html>
