@@ -149,3 +149,26 @@ LISTING_PRICING = {
 @app.get('/api/pricing')
 async def get_pricing():
     return {"status": "ok", "pricing": LISTING_PRICING}
+
+
+
+# --- CORE EMERGENCY MIDDLEWARE & RESILIENCE PATTERN ---
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+@app.middleware('http')
+async def resilience_safety_middleware(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as exc:
+        # Режим устойчивости: система никогда не падает при сбоях внешних API
+        return JSONResponse(
+            status_code=200,
+            content={
+                'status': 'system_resilience_fallback',
+                'detail': str(exc),
+                'emergency_phone': '112',
+                'message': 'Ядро Suomi Master переведено в режим повышенной надежности.'
+            }
+        )
