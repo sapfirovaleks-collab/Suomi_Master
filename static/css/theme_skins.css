@@ -1,0 +1,56 @@
+
+/* --- SUOMI MASTER CATEGORY BACKGROUNDS & GREETING STYLES --- */
+
+.welcome-header {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: 15px;
+    color: #ffffff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome-subtitle {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+/* Category Specific Background Skins */
+.bg-layer-fishing {
+}
+
+.bg-layer-sauna {
+}
+
+.bg-layer-laavu {
+}
+
+.bg-layer-mushrooms {
+}
+
+.bg-layer-lapland {
+}
+
+.bg-layer-safari {
+}
+
+.bg-layer-stay {
+}
+
+.bg-layer-caravan {
+}
+
+.bg-layer-tools {
+}

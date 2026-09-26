@@ -33,8 +33,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0284c7">
 
+    <link rel="stylesheet" href="/static/css/theme_skins.css">
 </head>
 <body>
+
+    <div id="welcome-banner" class="welcome-header">
+        <div class="welcome-title" id="greeting-text">Terve! 👋</div>
+        <div class="welcome-subtitle" id="greeting-subtext">Добро пожаловать в Suomi Master</div>
+    </div>
+
     <div id="sidebar">
         <div class="header">
             <div class="header-top">
@@ -176,6 +183,60 @@
     <button onclick="downloadPremiumOfflinePack({}, true)" style="position: fixed; bottom: 80px; right: 15px; z-index: 1000; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 6px;">
         ⭐ Офлайн-карта (Premium)
     </button>
+
+
+    <script>
+      function setPersonalizedGreeting(userName = 'Алекс') {
+        const hour = new Date().getHours();
+        let greeting = 'Добрый день';
+        let subtext = 'Готовы к новым приключениям в Финляндии?';
+
+        if (hour >= 5 && hour < 12) {
+            greeting = 'Доброе утро';
+            subtext = 'Отличное время для утренней рыбалки и похода!';
+        } else if (hour >= 12 && hour < 18) {
+            greeting = 'Добрый день';
+            subtext = 'Какой слой экосистемы исследуем сегодня?';
+        } else if (hour >= 18 && hour < 23) {
+            greeting = 'Добрый вечер';
+            subtext = 'Самое время выбрать сауну у озера или отдых у костра.';
+        } else {
+            greeting = 'Доброй ночи';
+            subtext = 'Проверяем места для споттинга Северного сияния?';
+        }
+
+        const titleEl = document.getElementById('greeting-text');
+        const subEl = document.getElementById('greeting-subtext');
+        
+        if (titleEl) titleEl.innerText = `${greeting}, ${userName}! 👋`;
+        if (subEl) subEl.innerText = subtext;
+      }
+
+      function switchSectionBackground(layerCategory) {
+        const body = document.body;
+        body.className = ''; // Сброс предыдущих классов
+        
+        const layerClasses = {
+            'fishing': 'bg-layer-fishing',
+            'sauna': 'bg-layer-sauna',
+            'laavu': 'bg-layer-laavu',
+            'mushrooms': 'bg-layer-mushrooms',
+            'lapland': 'bg-layer-lapland',
+            'safari': 'bg-layer-safari',
+            'stay': 'bg-layer-stay',
+            'caravan': 'bg-layer-caravan',
+            'tools': 'bg-layer-tools'
+        };
+
+        if (layerClasses[layerCategory]) {
+            body.classList.add(layerClasses[layerCategory]);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        setPersonalizedGreeting('Алекс');
+      });
+    </script>
 
 </body>
 </html>
