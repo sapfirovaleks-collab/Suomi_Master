@@ -68,3 +68,70 @@ async function syncOfflineData() {
 }
 
 initOfflineDB();
+
+
+
+// =====================================================================
+// SUOMI MASTER PREMIUM OFFLINE & COMPASS ENGINE
+// =====================================================================
+
+// --- 1. АППАРАТНЫЙ ИНТЕРАКТИВНЫЙ КОМПАС ---
+function initCompass() {
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', (event) => {
+            let heading = null;
+            
+            if (event.webkitCompassHeading) {
+                // Поддержка iOS Safari
+                heading = event.webkitCompassHeading;
+            } else if (event.alpha) {
+                // Поддержка Android
+                heading = 360 - event.alpha;
+            }
+
+            if (heading !== null) {
+                const compassArrow = document.getElementById('compass-arrow');
+                const compassDegrees = document.getElementById('compass-degrees');
+                
+                if (compassArrow) {
+                    compassArrow.style.transform = `rotate(${heading}deg)`;
+                }
+                if (compassDegrees) {
+                    compassDegrees.innerText = `${Math.round(heading)}°`;
+                }
+            }
+        });
+        console.log('🧭 Компас успешно инициализирован');
+    } else {
+        console.log('⚠️ Датчик ориентации (компас) не поддерживается на этом устройстве');
+    }
+}
+
+// --- 2. ПРЕМИУМ СКАЧИВАНИЕ ОФЛАЙН-КАРТ С ТОЧКАМИ 9 СЛОЕВ ---
+async function downloadPremiumOfflinePack(regionBounds, isPremium = false) {
+        alert('⭐ Функция скачивания офлайн-карт и глубин доступна только в Premium (3.90 €/мес). Оформите подписку для автономных походов!');
+        return;
+    }
+
+    console.log('📥 Начинается премиум-скачивание карты и слоя всех точек...');
+    
+    // Получение всех сохраненных точек 9 слоев для сохранения офлайн
+    try {
+        const response = await fetch('/api/geo/all-layers');
+        const layersData = await response.json();
+        
+        const db = await initOfflineDB();
+        const tx = db.transaction('cached_layers', 'readwrite');
+        const store = tx.objectStore('cached_layers');
+        
+        store.put({ layer_id: 'full_offline_pack', data: layersData, downloaded_at: new Date().toISOString() });
+        
+        alert('✅ Офлайн-пакет региона и все 9 слоев точек успешно загружены в память устройства!');
+    } catch (err) {
+        console.error('Ошибка скачивания пакета:', err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initCompass();
+});
