@@ -1,12 +1,6 @@
-FROM python:3.12-slim
-
+FROM python:3.11-slim
 WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt || pip install --no-cache-dir fastapi uvicorn aiosqlite httpx pydantic pydantic-settings apscheduler google-generativeai
-
-COPY . .
-
-EXPOSE 8000
-
-CMD ["python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+COPY . /app
+RUN pip install --no-cache-dir fastapi uvicorn gunicorn requests jinja2
+EXPOSE 8080
+CMD exec gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 1 --worker-class uvicorn.workers.UvicornWorker main:app

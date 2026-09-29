@@ -10,8 +10,10 @@ function initOfflineDB() {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
         request.onupgradeneeded = (e) => {
             const db = e.target.result;
+            if (!db.objectStoreNames.contains('user_markers')) {
                 db.createObjectStore('user_markers', { keyPath: 'id', autoIncrement: true });
             }
+            if (!db.objectStoreNames.contains('cached_layers')) {
                 db.createObjectStore('cached_layers', { keyPath: 'layer_id' });
             }
         };
@@ -109,6 +111,7 @@ function initCompass() {
 
 // --- 2. ПРЕМИУМ СКАЧИВАНИЕ ОФЛАЙН-КАРТ С ТОЧКАМИ 9 СЛОЕВ ---
 async function downloadPremiumOfflinePack(regionBounds, isPremium = false) {
+    if (!isPremium) {
         alert('⭐ Функция скачивания офлайн-карт и глубин доступна только в Premium (3.90 €/мес). Оформите подписку для автономных походов!');
         return;
     }
